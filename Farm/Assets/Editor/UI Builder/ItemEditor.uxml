@@ -1,0 +1,53 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Editor/UI%20Builder/ItemEditor.uss?fileID=7433441132597879392&amp;guid=7cdca224859ba2b4b90b268cf753e069&amp;type=3#ItemEditor" />
+    <engine:VisualElement name="Container" style="flex-grow: 1; align-items: stretch; width: 100%; height: 100%; flex-direction: row; justify-content: space-around; background-color: rgb(50, 50, 50);">
+        <engine:VisualElement name="ItemList" style="flex-grow: 1; height: 100%; flex-direction: column; width: 30%; align-items: stretch;">
+            <engine:VisualElement name="Header" style="flex-grow: 1; flex-direction: row; justify-content: space-between; height: auto; align-items: flex-start; align-self: auto; width: 100%; flex-wrap: nowrap; white-space: normal; text-overflow: clip; display: flex; visibility: visible; overflow: visible; position: absolute;">
+                <engine:Label text="ItemList" style="font-size: 20px; -unity-font-style: bold; color: rgb(255, 255, 255);" />
+                <engine:Button text="+" select-line-by-triple-click="false" style="flex-shrink: 0; flex-grow: 0; height: auto; flex-basis: auto; color: rgb(255, 255, 255); -unity-font-style: bold; background-color: rgba(98, 98, 98, 0.98);" />
+            </engine:VisualElement>
+            <engine:ListView name="ListView" reorderable="true" show-bound-collection-size="true" style="flex-grow: 1;" />
+        </engine:VisualElement>
+        <engine:ScrollView name="ItemDetails" style="flex-grow: 1; width: 70%;">
+            <engine:VisualElement name="Header" style="flex-grow: 1; flex-direction: row; justify-content: space-between; height: auto; align-items: stretch; align-self: auto; width: auto; flex-wrap: nowrap;">
+                <engine:Label text="Details Information" emoji-fallback-support="false" style="font-size: 20px; -unity-font-style: bold; color: rgb(255, 255, 255);" />
+                <engine:Button text="Delete" select-line-by-triple-click="false" selectable="true" select-word-by-double-click="false" style="flex-shrink: 0; flex-grow: 0; height: auto; flex-basis: auto;" />
+            </engine:VisualElement>
+            <engine:VisualElement name="Content" style="flex-grow: 1; flex-direction: column; align-items: stretch; position: relative; height: auto; width: auto;">
+                <engine:VisualElement name="Row1" style="flex-grow: 1; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); height: auto; position: relative; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
+                    <engine:Label text="General" name="Header" style="border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; padding-top: 2px; padding-left: 10px; padding-bottom: 2px; padding-right: 3px; background-color: rgb(14, 0, 0); color: rgb(255, 255, 255); -unity-font-style: bold; position: relative; flex-shrink: 1; flex-grow: 1; height: auto; margin-top: 0; bottom: auto; top: auto;" />
+                    <engine:VisualElement name="Container" style="flex-grow: 1; flex-direction: row; align-items: center; position: relative;">
+                        <engine:VisualElement name="Icon" style="flex-grow: 1; width: 80px; height: 80px; margin-left: 5px; margin-right: 5px; position: relative; background-image: url(&quot;project://database/Assets/M%20Studio/Art/Items/Icons/icon_M.png?fileID=2800000&amp;guid=ef065fb65f97e43f8b673d7718f87178&amp;type=3#icon_M&quot;); -unity-text-align: upper-left;" />
+                        <engine:VisualElement name="General" style="flex-grow: 1; margin-top: 5px; margin-right: 5px; margin-bottom: 5px; position: relative; flex-direction: column; color: rgb(255, 255, 255); justify-content: flex-start; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0);">
+                            <engine:IntegerField label="ID" value="0" name="ItemID" style="-unity-background-image-tint-color: rgba(0, 0, 0, 0.84); background-color: rgba(0, 0, 0, 0); position: relative; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; -unity-text-align: middle-left;" />
+                            <engine:TextField label="Name" placeholder-text="filler text" name="ItemName" style="position: relative; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; -unity-text-align: middle-left;" />
+                            <engine:EnumField label="Type" type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" name="ItemType" style="color: rgb(255, 255, 255); -unity-font-style: bold; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; -unity-text-align: middle-left;" />
+                            <editor:ObjectField label="Icon" type="UnityEngine.Sprite, UnityEngine" name="ItemIcon" style="padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; -unity-text-align: middle-left;" />
+                            <editor:ObjectField label="OnWorldSprite" type="UnityEngine.Sprite, UnityEngine.CoreModule" name="ItemSprite" style="padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; -unity-text-align: middle-left;" />
+                        </engine:VisualElement>
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:VisualElement name="Row2" style="flex-grow: 1; margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0);">
+                    <engine:Label text="Description" name="Header" style="border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; padding-top: 2px; padding-left: 10px; padding-bottom: 2px; padding-right: 3px; background-color: rgb(14, 0, 0); color: rgb(255, 255, 255); -unity-font-style: bold; position: relative; flex-shrink: 1; flex-grow: 1; height: auto; margin-top: 0; bottom: auto; top: auto;" />
+                    <engine:VisualElement name="Container" style="flex-grow: 1;">
+                        <engine:TextField placeholder-text="filler text" name="Description" multiline="true" style="color: rgb(255, 255, 255); flex-grow: 1; height: 80px; padding-top: 2px; padding-bottom: 2px;" />
+                    </engine:VisualElement>
+                </engine:VisualElement>
+                <engine:VisualElement name="Row3" style="flex-grow: 1; flex-direction: row; justify-content: space-between; align-self: stretch; align-items: stretch;">
+                    <engine:VisualElement name="Left" style="flex-grow: 1; width: 50%; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-left: 5px; margin-right: 2px;">
+                        <engine:Label text="Description" name="Header" style="border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; padding-top: 2px; padding-left: 10px; padding-bottom: 2px; padding-right: 3px; background-color: rgb(14, 0, 0); color: rgb(255, 255, 255); -unity-font-style: bold; position: relative; flex-shrink: 1; flex-grow: 1; height: auto; margin-top: 0; bottom: auto; top: auto;" />
+                        <engine:IntegerField label="Integer Field" value="42" name="ItemUseRadius" style="padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px;" />
+                        <engine:Toggle label="Toggle" name="CanPickedup" style="padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px;" />
+                        <engine:Toggle label="Toggle" name="CanDroppedup" style="padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px;" />
+                        <engine:Toggle label="Toggle" name="CanCarried" style="padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px;" />
+                    </engine:VisualElement>
+                    <engine:VisualElement name="Right" style="flex-grow: 1; width: 50%; margin-right: 5px; position: relative; align-items: stretch; justify-content: flex-start; align-self: auto; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-left: 2px;">
+                        <engine:Label text="Description" name="Header" style="border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; padding-top: 2px; padding-left: 10px; padding-bottom: 2px; padding-right: 3px; background-color: rgb(14, 0, 0); color: rgb(255, 255, 255); -unity-font-style: bold; position: relative; flex-shrink: 1; flex-grow: 1; height: auto; margin-top: 0; bottom: auto; top: auto; -unity-background-scale-mode: stretch-to-fill; flex-basis: auto;" />
+                        <engine:IntegerField label="Price" value="0" name="Price" style="padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px;" />
+                        <engine:Slider label="SellPercentage" value="0" high-value="1" name="SellPercentage" show-input-field="true" />
+                    </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:VisualElement>
+        </engine:ScrollView>
+    </engine:VisualElement>
+</engine:UXML>

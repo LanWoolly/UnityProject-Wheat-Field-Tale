@@ -1,0 +1,6 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement name="Row" style="flex-grow: 1; height: 60px; position: absolute; width: 100%; justify-content: flex-start; align-items: center; align-self: stretch; flex-direction: row;">
+        <engine:VisualElement name="icon" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/M%20Studio/Art/Items/Icons/icon_M.png?fileID=2800000&amp;guid=ef065fb65f97e43f8b673d7718f87178&amp;type=3#icon_M&quot;); position: absolute; width: 40px; height: 40px; margin-top: 5px; margin-right: 5px; margin-bottom: 5px; margin-left: 5px;" />
+        <engine:Label text="Label" name="Name" style="position: relative; left: 45px; font-size: 18px; color: rgb(255, 255, 255);" />
+    </engine:VisualElement>
+</engine:UXML>
