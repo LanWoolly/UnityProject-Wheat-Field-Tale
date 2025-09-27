@@ -6,7 +6,7 @@
                 <engine:Label text="ItemList" style="font-size: 20px; -unity-font-style: bold; color: rgb(255, 255, 255);" />
                 <engine:Button text="+" select-line-by-triple-click="false" style="flex-shrink: 0; flex-grow: 0; height: auto; flex-basis: auto; color: rgb(255, 255, 255); -unity-font-style: bold; background-color: rgba(98, 98, 98, 0.98);" />
             </engine:VisualElement>
-            <engine:ListView name="ListView" reorderable="true" show-bound-collection-size="true" style="flex-grow: 1;" />
+            <engine:ListView name="ListView" reorderable="true" show-bound-collection-size="true" style="flex-grow: 1; top: 20px; min-height: 50px; margin-top: 10px;" />
         </engine:VisualElement>
         <engine:ScrollView name="ItemDetails" style="flex-grow: 1; width: 70%;">
             <engine:VisualElement name="Header" style="flex-grow: 1; flex-direction: row; justify-content: space-between; height: auto; align-items: stretch; align-self: auto; width: auto; flex-wrap: nowrap;">

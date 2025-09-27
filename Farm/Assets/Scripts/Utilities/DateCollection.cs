@@ -5,7 +5,7 @@ using UnityEngine;
 public class ItemDetails
 {
     public int itemID;
-    public string name;
+    public string itemName;
     public ItemType itemType;
     public Sprite itemIcon;
     public Sprite itemOnWorldSprite;
@@ -18,5 +18,5 @@ public class ItemDetails
 
     [Range(0, 1)]
     public float sellPercentage;
-    
+
 }
