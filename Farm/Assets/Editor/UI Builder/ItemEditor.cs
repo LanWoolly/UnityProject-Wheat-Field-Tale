@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System;
+using System.Linq;
 
 public class ItemEditor : EditorWindow
 {
@@ -87,5 +88,34 @@ public class ItemEditor : EditorWindow
         itemListView.itemsSource = itemList;
         itemListView.makeItem = makeItem;
         itemListView.bindItem = bindItem;
+
+        itemListView.selectionChanged += OnListSelectionChange;
+
+        //正常情况下，右侧信息面板不可见
+        itemDetailSection.visible = false;
+    }
+
+    private void OnListSelectionChange(IEnumerable<object> selectedItem)
+    {
+        activeItem = (ItemDetails)selectedItem.First();
+        GetItemDetails();
+        itemDetailSection.visible = true;
+    }
+
+    private void GetItemDetails()
+    {
+        itemDetailSection.MarkDirtyRepaint();
+
+        itemDetailSection.Q<IntegerField>("ItemID").value = activeItem.itemID;
+        itemDetailSection.Q<IntegerField>("ItemID").RegisterValueChangedCallback(evt =>
+        {
+            activeItem.itemID = evt.newValue;
+        });
+
+        itemDetailSection.Q<TextField>("ItemName").value = activeItem.itemName;
+        itemDetailSection.Q<TextField>("ItemName").RegisterValueChangedCallback(evt =>
+        {
+            activeItem.itemName = evt.newValue;
+        });
     }
 }
