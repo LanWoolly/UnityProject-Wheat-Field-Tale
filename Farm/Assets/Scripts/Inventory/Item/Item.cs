@@ -10,7 +10,7 @@ namespace Farm.Inventory
         public int itemID;
 
         private SpriteRenderer spriteRenderer;
-        private ItemDetails itemDetails;
+        public ItemDetails itemDetails;
         private BoxCollider2D coll;
 
         private void Awake()
