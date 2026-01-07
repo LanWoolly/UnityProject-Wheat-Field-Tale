@@ -31365,6 +31365,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ItemBase
       objectReference: {fileID: 0}
+    - target: {fileID: 763040293868440022, guid: adf0ed1b77cfa90429cce261f8958c8c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5611534135399215667, guid: adf0ed1b77cfa90429cce261f8958c8c, type: 3}
       propertyPath: itemID
       value: 1001

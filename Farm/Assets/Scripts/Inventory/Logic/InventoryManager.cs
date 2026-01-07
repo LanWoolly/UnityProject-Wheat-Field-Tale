@@ -82,17 +82,26 @@ namespace Farm.Inventory
         /// <param name="amount">数量</param>
         private void AddItemAtIndex(int ID, int index, int amount)
         {
-            if (index == -1 && CheckBagCapacity())//背包没有这个物品,同时背包有空位
+            if (index == -1)//背包没有这个物品,同时背包有空位
             {
-                var item = new InventoryItem { itemID = ID, itemAmount = amount };
-                for (int i = 0; i < playerBag_SO.itemList.Count; i++)
+                if (CheckBagCapacity())
                 {
-                    if (playerBag_SO.itemList[i].itemID == 0)
+                    var item = new InventoryItem { itemID = ID, itemAmount = amount };
+                    for (int i = 0; i < playerBag_SO.itemList.Count; i++)
                     {
-                        playerBag_SO.itemList[i] = item;
-                        break;
+                        if (playerBag_SO.itemList[i].itemID == 0)
+                        {
+                            playerBag_SO.itemList[i] = item;
+                            break;
+                        }
                     }
                 }
+                else
+                {
+                    Debug.Log("背包已满，无法添加物品");
+                    return;
+                }
+
             }
             else //背包有这个物品
             {
