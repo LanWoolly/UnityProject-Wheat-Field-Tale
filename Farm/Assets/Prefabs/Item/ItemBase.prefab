@@ -93,6 +93,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemID: 0
+  itemDetails:
+    itemID: 0
+    itemName: 
+    itemType: 0
+    itemIcon: {fileID: 0}
+    itemOnWorldSprite: {fileID: 0}
+    itemDescription: 
+    itemUseRadius: 0
+    canPickedup: 0
+    canDropped: 0
+    canCarried: 0
+    itemPrice: 0
+    sellPercentage: 0
 --- !u!1 &7089205633916100608
 GameObject:
   m_ObjectHideFlags: 0

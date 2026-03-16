@@ -71,6 +71,12 @@ namespace Farm.Inventory
 
             // slotHighlight.gameObject.SetActive(isSelected);
             inventoryUI.UpdateSlotHightlight(slotIndex);
+
+            if (slotType == SlotType.Bag)
+            {
+                //通知物品被选中的状态和信息
+                EventHandler.CallItemSelectedEvent(itemDetails, isSelected);
+            }
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -105,7 +111,26 @@ namespace Farm.Inventory
 
                 var targetSlot = eventData.pointerCurrentRaycast.gameObject.GetComponent<SlotUI>();
                 int targetIndex = targetSlot.slotIndex;
+
+                //在Player自身背包范围内交换
+                if (slotType == SlotType.Bag && targetSlot.slotType == SlotType.Bag)
+                {
+                    InventoryManager.Instance.SwapItem(slotIndex, targetIndex);
+                }
+
+                inventoryUI.UpdateSlotHightlight(-1);
             }
+            // else    //测试放到地上
+            // {
+            //     if (itemDetails.canDropped)
+            //     {
+            //         //鼠标对应世界地图坐标
+            //         var pos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
+
+            //         EventHandler.CallInstantiateItemInScene(itemDetails.itemID, pos);
+            //     }
+
+            // }
 
         }
     }

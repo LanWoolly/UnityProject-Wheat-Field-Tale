@@ -119,5 +119,29 @@ namespace Farm.Inventory
                 playerBag_SO.itemList[index] = item;
             }
         }
+
+        /// <summary>
+        /// Player背包范围内交换物品
+        /// </summary>
+        /// <param name="fromIndex">起始序号</param>
+        /// <param name="toIndex">目标序号</param>
+        public void SwapItem(int fromIndex, int toIndex)
+        {
+            InventoryItem currentItem = playerBag_SO.itemList[fromIndex];
+            InventoryItem targetItem = playerBag_SO.itemList[toIndex];
+
+            if (targetItem.itemID != 0)
+            {
+                playerBag_SO.itemList[fromIndex] = targetItem;
+                playerBag_SO.itemList[toIndex] = currentItem;
+            }
+            else
+            {
+                playerBag_SO.itemList[toIndex] = currentItem;
+                playerBag_SO.itemList[fromIndex] = new InventoryItem();
+            }
+
+            EventHandler.CallUpdateInventoryUI(InventoryLocation.Player, playerBag_SO.itemList);
+        }
     }
 }

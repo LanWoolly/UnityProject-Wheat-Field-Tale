@@ -12,14 +12,20 @@ public class Player : MonoBehaviour
 
     private Vector2 movementInput;
 
+    private Animator[] animators;
+
+    private bool isMoving;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        animators = GetComponentsInChildren<Animator>();
     }
 
     private void Update()
     {
         PlayerInput();
+        SwitchAnimation();
     }
 
     private void FixedUpdate()
@@ -37,11 +43,35 @@ public class Player : MonoBehaviour
             inputX = inputX * 0.6f;
             inputY = inputY * 0.6f;
         }
+
+        //按下shift,走路变慢
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            inputX = inputX * 0.5f;
+            inputY = inputY * 0.5f;
+        }
         movementInput = new Vector2(inputX, inputY);
+
+        // Debug.Log(movementInput);
+
+        isMoving = movementInput != Vector2.zero;
     }
 
     private void Movement()
     {
         rb.MovePosition(rb.position + movementInput * speed * Time.deltaTime);
+    }
+
+    private void SwitchAnimation()
+    {
+        foreach (var anim in animators)
+        {
+            anim.SetBool("isMoving", isMoving);
+            if (isMoving)
+            {
+                anim.SetFloat("InputX", inputX);
+                anim.SetFloat("InputY", inputY);
+            }
+        }
     }
 }
