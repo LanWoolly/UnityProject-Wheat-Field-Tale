@@ -27,7 +27,7 @@ namespace Farm.Inventory
             }
         }
 
-        private void Init(int ID)
+        public void Init(int ID)
         {
             itemID = ID;
 

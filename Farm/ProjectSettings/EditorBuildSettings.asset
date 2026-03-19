@@ -8,5 +8,14 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PersistentScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/01Field.unity
+    guid: 5de432a67aa37504e84e117638b4c051
+  - enabled: 1
+    path: Assets/Scenes/02Home.unity
+    guid: 334734588a8a4be468175d9cd90fa8e5
+  - enabled: 1
+    path: Assets/Scenes/UI.unity
+    guid: 810c7116010608c40878a5e6cb4160fa
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
