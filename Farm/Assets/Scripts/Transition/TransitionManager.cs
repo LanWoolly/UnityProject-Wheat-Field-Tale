@@ -17,10 +17,11 @@ namespace Farm.Transition
         {
             EventHandler.TransitionEvent += OnTransitionEvent;
         }
-        private void Start()
+        private IEnumerator Start()
         {
-            StartCoroutine(LoadSceneSetActive(startSceneName));
             fadeCanvasGroup = FindFirstObjectByType<CanvasGroup>();
+            yield return LoadSceneSetActive(startSceneName);
+            EventHandler.CallAfterSceneLoadedEvent();
         }
 
         private void OnDisable()

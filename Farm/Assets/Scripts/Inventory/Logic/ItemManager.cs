@@ -10,7 +10,10 @@ namespace Farm.Inventory
     public class ItemManager : MonoBehaviour
     {
         public Item itemPrefab;
+        public Item bounceItemPrefab;
         private Transform itemParent;
+
+        private Transform PlayerTransform => FindFirstObjectByType<Player>().transform;
 
         //记录场景Item
         private Dictionary<string, List<SceneItem>> sceneItemDict = new Dictionary<string, List<SceneItem>>();
@@ -18,6 +21,7 @@ namespace Farm.Inventory
         private void OnEnable()
         {
             EventHandler.InstantiateItemInScene += OnInstantiateItemInScene;
+            EventHandler.DropItemEvent += OnDropItemEvent;
             EventHandler.BeforeSceneUnloadEvent += OnBeforeSceneUnloadEvent;
             EventHandler.AfterSceneLoadedEvent += OnAfterSceneLoadedEvent;
         }
@@ -25,6 +29,7 @@ namespace Farm.Inventory
         private void OnDisable()
         {
             EventHandler.InstantiateItemInScene -= OnInstantiateItemInScene;
+            EventHandler.DropItemEvent -= OnDropItemEvent;
             EventHandler.BeforeSceneUnloadEvent -= OnBeforeSceneUnloadEvent;
             EventHandler.AfterSceneLoadedEvent -= OnAfterSceneLoadedEvent;
         }
@@ -49,6 +54,16 @@ namespace Farm.Inventory
         {
             var item = Instantiate(itemPrefab, pos, quaternion.identity, itemParent);
             item.itemID = ID;
+        }
+
+
+        private void OnDropItemEvent(int ID, Vector3 mousePos)
+        {
+
+            var item = Instantiate(bounceItemPrefab, PlayerTransform.position, quaternion.identity, itemParent);
+            item.itemID = ID;
+            var dir = (mousePos - PlayerTransform.position).normalized;
+            item.GetComponent<ItemBounce>().InitBounceItem(mousePos, dir);
         }
 
         /// <summary>
