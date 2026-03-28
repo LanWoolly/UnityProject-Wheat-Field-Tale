@@ -15,6 +15,7 @@ namespace Farm.Inventory
         private void OnEnable()
         {
             EventHandler.DropItemEvent += OnDropItemEvent;
+            EventHandler.HarvestAtPlayerPosition += OnHarvestAtPlayerPosition;
         }
 
         private void Start()
@@ -25,11 +26,22 @@ namespace Farm.Inventory
         private void OnDisable()
         {
             EventHandler.DropItemEvent -= OnDropItemEvent;
+            EventHandler.HarvestAtPlayerPosition += OnHarvestAtPlayerPosition;
         }
 
-        private void OnDropItemEvent(int ID, Vector3 pos)
+        private void OnDropItemEvent(int ID, Vector3 pos, ItemType itemType)
         {
             RemoveItem(ID, 1);
+        }
+
+        private void OnHarvestAtPlayerPosition(int ID)
+        {
+            //是否已经有该物品
+            var index = GetItemIndexInBag(ID);
+            AddItemAtIndex(ID, index, 1);
+
+            //更新UI
+            EventHandler.CallUpdateInventoryUI(InventoryLocation.Player, playerBag_SO.itemList);
         }
 
         /// <summary>

@@ -52,14 +52,15 @@ namespace Farm.Inventory
         /// <param name="pos">世界坐标</param>
         private void OnInstantiateItemInScene(int ID, Vector3 pos)
         {
-            var item = Instantiate(itemPrefab, pos, quaternion.identity, itemParent);
+            var item = Instantiate(bounceItemPrefab, pos, quaternion.identity, itemParent);
             item.itemID = ID;
+            item.GetComponent<ItemBounce>().InitBounceItem(pos, Vector3.up);
         }
 
 
-        private void OnDropItemEvent(int ID, Vector3 mousePos)
+        private void OnDropItemEvent(int ID, Vector3 mousePos, ItemType itemType)
         {
-
+            if (itemType == ItemType.Seed) return;
             var item = Instantiate(bounceItemPrefab, PlayerTransform.position, quaternion.identity, itemParent);
             item.itemID = ID;
             var dir = (mousePos - PlayerTransform.position).normalized;

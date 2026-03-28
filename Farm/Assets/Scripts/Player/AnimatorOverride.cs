@@ -1,3 +1,4 @@
+using Farm.Inventory;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,13 +27,31 @@ public class AnimatorOverride : MonoBehaviour
     {
         EventHandler.ItemSelectedEvent += OnItemSelectedEvent;
         EventHandler.BeforeSceneUnloadEvent += OnBeforeSceneUnloadEvent;
+        EventHandler.HarvestAtPlayerPosition += OnHarvestAtPlayerPosition;
     }
 
     private void OnDisable()
     {
         EventHandler.ItemSelectedEvent -= OnItemSelectedEvent;
         EventHandler.BeforeSceneUnloadEvent -= OnBeforeSceneUnloadEvent;
+        EventHandler.HarvestAtPlayerPosition -= OnHarvestAtPlayerPosition;
+    }
 
+    private void OnHarvestAtPlayerPosition(int ID)
+    {
+        Sprite itemSprite = InventoryManager.Instance.GetItemDetails(ID).itemOnWorldSprite;
+        if (holdItem.enabled == false)
+        {
+            StartCoroutine(ShowItem(itemSprite));
+        }
+    }
+
+    private IEnumerator ShowItem(Sprite itemSprite)
+    {
+        holdItem.sprite = itemSprite;
+        holdItem.enabled = true;
+        yield return new WaitForSeconds(1f);
+        holdItem.enabled = false;
     }
 
     private void OnBeforeSceneUnloadEvent()
@@ -48,6 +67,11 @@ public class AnimatorOverride : MonoBehaviour
         {
             ItemType.Seed => PartType.Carry,
             ItemType.Commodity => PartType.Carry,
+            ItemType.HoeTool => PartType.Hoe,
+            ItemType.WaterTool => PartType.Water,
+            ItemType.CollectTool => PartType.Collect,
+            ItemType.ChopTool => PartType.Chop,
+            ItemType.BreakTool => PartType.Break,
             _ => PartType.None
         };
 
@@ -62,6 +86,10 @@ public class AnimatorOverride : MonoBehaviour
             {
                 holdItem.sprite = itemDetails.itemOnWorldSprite;
                 holdItem.enabled = true;
+            }
+            else
+            {
+                holdItem.enabled = false;
             }
         }
 

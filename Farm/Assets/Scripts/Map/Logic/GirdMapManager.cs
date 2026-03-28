@@ -1,18 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using UnityEngine.SceneManagement;
+using System;
 
 namespace Farm.Map
 {
     public class GirdMapManager : Singleton<GirdMapManager>
     {
+        [Header("种植瓦片切换信息")]
+        public RuleTile digTile;
+        public RuleTile waterTile;
+        private Tilemap digTilemap;
+        private Tilemap waterTilemap;
+
         [Header("地图信息")]
         public List<MapData_SO> mapDataList;
+        private Season currentSeason;
 
         //场景名字 + 坐标和对应的瓦片信息
         private Dictionary<string, TileDetails> tileDetailsDict = new Dictionary<string, TileDetails>();
-
+        //场景是否第一次加载
+        private Dictionary<string, bool> firstLoadDict = new Dictionary<string, bool>();
         private Grid currentGrid;
 
 
@@ -20,12 +30,15 @@ namespace Farm.Map
         {
             EventHandler.ExecuteActionAfterAnimation += OnExecuteActionAfterAnimation;
             EventHandler.AfterSceneLoadedEvent += OnAfterSceneLoadedEvent;
+            EventHandler.GameDayEvent += OnGameDayEvent;
+            EventHandler.RefreshCurrentMap += RefreshMap;
         }
 
         private void Start()
         {
             foreach (var mapData in mapDataList)
             {
+                firstLoadDict.Add(mapData.sceneName, true);
                 InitTileDetailsDict(mapData);
             }
         }
@@ -34,11 +47,59 @@ namespace Farm.Map
         {
             EventHandler.ExecuteActionAfterAnimation -= OnExecuteActionAfterAnimation;
             EventHandler.AfterSceneLoadedEvent -= OnAfterSceneLoadedEvent;
+            EventHandler.GameDayEvent -= OnGameDayEvent;
+            EventHandler.RefreshCurrentMap -= RefreshMap;
         }
 
         private void OnAfterSceneLoadedEvent()
         {
             currentGrid = FindFirstObjectByType<Grid>();
+            digTilemap = GameObject.FindWithTag("Dig").GetComponent<Tilemap>();
+            waterTilemap = GameObject.FindWithTag("Water").GetComponent<Tilemap>();
+
+            // DisplayMap(SceneManager.GetActiveScene().name);
+            if (firstLoadDict[SceneManager.GetActiveScene().name])
+            {
+                //预先生成农作物
+                EventHandler.CallGenerateCropEvent();
+                firstLoadDict[SceneManager.GetActiveScene().name] = false;
+            }
+            RefreshMap();
+        }
+
+        /// <summary>
+        /// 每天执行一次
+        /// </summary>
+        /// <param name="day"></param>
+        /// <param name="season"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void OnGameDayEvent(int day, Season season)
+        {
+            foreach (var tile in tileDetailsDict)
+            {
+                if (tile.Value.daysSinceWatered > -1)
+                {
+                    tile.Value.daysSinceWatered = -1;
+                }
+                if (tile.Value.daysSinceDig > -1)
+                {
+                    tile.Value.daysSinceDig++;
+                }
+
+                //超过日期消除挖坑
+                if (tile.Value.daysSinceDig > 5 && tile.Value.seedItemID == -1)
+                {
+                    tile.Value.daysSinceDig = -1;
+                    tile.Value.canDig = true;
+                    tile.Value.growthDays = -1;
+                }
+                if (tile.Value.seedItemID != -1)
+                {
+                    tile.Value.growthDays++;
+                }
+            }
+
+            RefreshMap();
         }
 
         /// <summary>
@@ -123,12 +184,145 @@ namespace Farm.Map
 
             if (currentTile != null)
             {
+                Crop currentCrop = GetCropObject(mouseWorldPos);
+
                 //WORKFLOW:物品使用的实际功能
                 switch (itemDetails.itemType)
                 {
-                    case ItemType.Commodity:
-                        EventHandler.CallDropItemEvent(itemDetails.itemID, mouseWorldPos);
+                    case ItemType.Seed:
+                        EventHandler.CallPlantSeedEvent(itemDetails.itemID, currentTile);
+                        EventHandler.CallDropItemEvent(itemDetails.itemID, mouseWorldPos, itemDetails.itemType);
                         break;
+                    case ItemType.Commodity:
+                        EventHandler.CallDropItemEvent(itemDetails.itemID, mouseWorldPos, itemDetails.itemType);
+                        break;
+                    case ItemType.HoeTool:
+                        SetDigGround(currentTile);
+                        currentTile.daysSinceDig = 0;
+                        currentTile.canDig = false;
+                        currentTile.canDropItem = false;
+                        //TODO:音效
+                        break;
+                    case ItemType.WaterTool:
+                        SetWaterGround(currentTile);
+                        currentTile.daysSinceWatered = 0;
+                        //音效
+                        break;
+                    case ItemType.BreakTool:
+                    case ItemType.ChopTool:
+                        //执行收割
+                        currentCrop?.ProcessToolAction(itemDetails, currentCrop.tileDetails);
+                        break;
+                    case ItemType.CollectTool:
+                        // Crop currentCrop = GetCropObject(mouseWorldPos);
+                        //执行收割
+                        currentCrop.ProcessToolAction(itemDetails, currentTile);
+                        break;
+                }
+
+                UpdateTileDetails(currentTile);
+            }
+        }
+
+        /// <summary>
+        /// 通过物理方法判断鼠标点击位置的农作物
+        /// </summary>
+        /// <param name="mouseWorldPos">鼠标坐标</param>
+        /// <returns></returns>
+        public Crop GetCropObject(Vector3 mouseWorldPos)
+        {
+            Collider2D[] colliders = Physics2D.OverlapPointAll(mouseWorldPos);
+            Crop currentCrop = null;
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                if (colliders[i].GetComponent<Crop>())
+                {
+                    currentCrop = colliders[i].GetComponent<Crop>();
+                }
+            }
+
+            return currentCrop;
+        }
+
+        /// <summary>
+        /// 显示挖地瓦片
+        /// </summary>
+        /// <param name="tile"></param>
+        private void SetDigGround(TileDetails tile)
+        {
+            Vector3Int pos = new Vector3Int(tile.girdX, tile.gridY, 0);
+            if (digTilemap != null)
+                digTilemap.SetTile(pos, digTile);
+        }
+
+        /// <summary>
+        /// 显示浇水瓦片
+        /// </summary>
+        /// <param name="tile"></param>
+        private void SetWaterGround(TileDetails tile)
+        {
+            Vector3Int pos = new Vector3Int(tile.girdX, tile.gridY, 0);
+            if (waterTilemap != null)
+                waterTilemap.SetTile(pos, waterTile);
+        }
+
+        /// <summary>
+        /// 更新瓦片信息
+        /// </summary>
+        /// <param name="tileDetails"></param>
+        public void UpdateTileDetails(TileDetails tileDetails)
+        {
+            string key = tileDetails.girdX + "x" + tileDetails.gridY + "y" + SceneManager.GetActiveScene().name;
+            if (tileDetailsDict.ContainsKey(key))
+            {
+                tileDetailsDict[key] = tileDetails;
+            }
+            else
+            {
+                tileDetailsDict.Add(key, tileDetails);
+            }
+        }
+
+        /// <summary>
+        /// 刷新当前地图
+        /// </summary>
+        private void RefreshMap()
+        {
+            if (digTilemap != null)
+                digTilemap.ClearAllTiles();
+            if (waterTile != null)
+                waterTilemap.ClearAllTiles();
+
+            foreach (var crop in FindObjectsByType<Crop>(FindObjectsSortMode.None))
+            {
+                Debug.Log(crop.gameObject.name);
+                Destroy(crop.gameObject);
+            }
+
+            DisplayMap(SceneManager.GetActiveScene().name);
+        }
+
+        /// <summary>
+        /// 显示地图瓦片
+        /// </summary>
+        /// <param name="sceneName">场景名字</param>
+        private void DisplayMap(string sceneName)
+        {
+            foreach (var tile in tileDetailsDict)
+            {
+                var key = tile.Key;
+                var tileDetails = tile.Value;
+
+                if (key.Contains(sceneName))
+                {
+                    if (tileDetails.daysSinceDig > -1)
+                        SetDigGround(tileDetails);
+
+                    if (tileDetails.daysSinceWatered > -1)
+                        SetWaterGround(tileDetails);
+
+                    if (tileDetails.seedItemID > -1)
+                        EventHandler.CallPlantSeedEvent(tileDetails.seedItemID, tileDetails);
                 }
             }
         }

@@ -20,10 +20,10 @@ public static class EventHandler
         InstantiateItemInScene?.Invoke(ID, pos);
     }
 
-    public static event Action<int, Vector3> DropItemEvent;
-    public static void CallDropItemEvent(int ID, Vector3 pos)
+    public static event Action<int, Vector3, ItemType> DropItemEvent;
+    public static void CallDropItemEvent(int ID, Vector3 pos, ItemType itemType)
     {
-        DropItemEvent?.Invoke(ID, pos);
+        DropItemEvent?.Invoke(ID, pos, itemType);
     }
 
     public static event Action<ItemDetails, bool> ItemSelectedEvent;
@@ -36,6 +36,12 @@ public static class EventHandler
     public static void CallGameMinuteEvent(int minute, int hour)
     {
         GameMinuteEvent?.Invoke(minute, hour);
+    }
+
+    public static event Action<int, Season> GameDayEvent;
+    public static void CallGameDayEvent(int day, Season season)
+    {
+        GameDayEvent?.Invoke(day, season);
     }
 
     public static event Action<int, int, int, int, Season> GameDateEvent;
@@ -78,5 +84,35 @@ public static class EventHandler
     public static void CallExecuteActionAfterAnimation(Vector3 pos, ItemDetails itemDetails)
     {
         ExecuteActionAfterAnimation?.Invoke(pos, itemDetails);
+    }
+
+    public static event Action<int, TileDetails> PlantSeedEvent;
+    public static void CallPlantSeedEvent(int ID, TileDetails tile)
+    {
+        PlantSeedEvent?.Invoke(ID, tile);
+    }
+
+    public static event Action<int> HarvestAtPlayerPosition;
+    public static void CallHarvestAtPlayerPosition(int ID)
+    {
+        HarvestAtPlayerPosition?.Invoke(ID);
+    }
+
+    public static event Action RefreshCurrentMap;
+    public static void CallRefreshCurrentMap()
+    {
+        RefreshCurrentMap?.Invoke();
+    }
+
+    public static event Action<ParticleEffectType, Vector3> ParticleEffectEvent;
+    public static void CallParticleEffectEvent(ParticleEffectType effectType, Vector3 pos)
+    {
+        ParticleEffectEvent?.Invoke(effectType, pos);
+    }
+
+    public static event Action GenerateCropEvent;
+    public static void CallGenerateCropEvent()
+    {
+        GenerateCropEvent?.Invoke();
     }
 }

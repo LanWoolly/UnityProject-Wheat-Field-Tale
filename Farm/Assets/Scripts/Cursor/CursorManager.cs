@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+using Farm.CropPlant;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -140,6 +138,7 @@ public class CursorManager : MonoBehaviour
                 ItemType.BreakTool => tool,
                 ItemType.ReapTool => tool,
                 ItemType.Furniture => tool,
+                ItemType.CollectTool => tool,
                 _ => normal
             };
             cursorEnable = true;
@@ -163,26 +162,56 @@ public class CursorManager : MonoBehaviour
             return;
         }
 
+        // Debug.Log(mouseGridPos);
         TileDetails currentTile = GirdMapManager.Instance.GetTileDetailsOnMousePosition(mouseGridPos);
 
         if (currentTile != null)
         {
+            // Debug.Log("1");
+            CropDetails currentCrop = CropManager.Instance.GetCropDetails(currentTile.seedItemID);
+            Crop crop = GirdMapManager.Instance.GetCropObject(mouseWorldPos);
 
+            //WORKFLOW:补充所有物品类型的判断
             switch (currentItem.itemType)
             {
+                case ItemType.Seed:
+                    if (currentTile.daysSinceDig > -1 && currentTile.seedItemID == -1) SetCursorValid(); else SetCursorInValid();
+                    break;
                 case ItemType.Commodity:
                     if (currentTile.canDropItem && currentItem.canDropped)
                         SetCursorValid();
                     else
                         SetCursorInValid();
                     break;
-                    // default:
-                    //     SetCursorInValid();
-                    //     break;
+                case ItemType.HoeTool:
+                    if (currentTile.canDig) SetCursorValid(); else SetCursorInValid();
+                    break;
+                case ItemType.WaterTool:
+                    if (currentTile.daysSinceDig > -1 && currentTile.daysSinceWatered == -1) SetCursorValid(); else SetCursorInValid();
+                    break;
+                case ItemType.BreakTool:
+                case ItemType.ChopTool:
+                    if (crop != null)
+                    {
+                        if (crop.CanHarvest && crop.cropDetails.CheckToolAvailable(currentItem.itemID)) SetCursorValid(); else SetCursorInValid();
+                    }
+                    else
+                        SetCursorInValid();
+                    break;
+                case ItemType.CollectTool:
+                    if (currentCrop != null)
+                    {
+                        if (currentCrop.CheckToolAvailable(currentItem.itemID))
+                            if (currentTile.growthDays >= currentCrop.TotalGrowthDays) SetCursorValid(); else SetCursorInValid();
+                    }
+                    else
+                        SetCursorInValid();
+                    break;
             }
         }
         else
         {
+            Debug.Log("2");
             SetCursorInValid();
         }
     }
