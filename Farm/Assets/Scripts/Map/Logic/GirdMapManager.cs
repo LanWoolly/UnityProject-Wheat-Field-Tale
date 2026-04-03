@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.SceneManagement;
 using System;
+using Farm.CropPlant;
+using UnityEditor;
+using Farm.Inventory;
 
 namespace Farm.Map
 {
@@ -23,6 +26,9 @@ namespace Farm.Map
         private Dictionary<string, TileDetails> tileDetailsDict = new Dictionary<string, TileDetails>();
         //场景是否第一次加载
         private Dictionary<string, bool> firstLoadDict = new Dictionary<string, bool>();
+        private List<ReapItem> itemsInRadius;
+        private ContactFilter2D contactFilter2D;
+
         private Grid currentGrid;
 
 
@@ -152,7 +158,7 @@ namespace Farm.Map
         /// </summary>
         /// <param name="key">x+y+地图名字</param>
         /// <returns></returns>
-        private TileDetails GetTileDetails(string key)
+        public TileDetails GetTileDetails(string key)
         {
             if (tileDetailsDict.ContainsKey(key))
             {
@@ -218,6 +224,23 @@ namespace Farm.Map
                         //执行收割
                         currentCrop.ProcessToolAction(itemDetails, currentTile);
                         break;
+                    case ItemType.ReapTool:
+                        var reapCount = 0;
+                        for (int i = 0; i < itemsInRadius.Count; i++)
+                        {
+                            EventHandler.CallParticleEffectEvent(ParticleEffectType.ReapableScenery, itemsInRadius[i].transform.position + Vector3.up);
+                            itemsInRadius[i].SpawnHarvestItems();
+                            Destroy(itemsInRadius[i].gameObject);
+                            reapCount++;
+                            if (reapCount >= Settings.reapAmount)
+                                break;
+                        }
+                        break;
+                    case ItemType.Furniture:
+                        //在地图上生成物品（ItemManager）
+                        //移除建造图纸和建造资源物品
+                        EventHandler.CallBuildFurnitureEvent(itemDetails.itemID, mouseWorldPos);
+                        break;
                 }
 
                 UpdateTileDetails(currentTile);
@@ -242,6 +265,35 @@ namespace Farm.Map
             }
 
             return currentCrop;
+        }
+
+        /// <summary>
+        /// 返回工具范围内的杂草
+        /// </summary>
+        /// <param name="tool">物品信息</param>
+        /// <returns></returns>
+        public bool HaveReapableItemsInRadius(Vector3 mouseWorldPos, ItemDetails tool)
+        {
+            itemsInRadius = new List<ReapItem>();
+            Collider2D[] colliders = new Collider2D[20];
+            contactFilter2D.NoFilter();
+            Physics2D.OverlapCircle(mouseWorldPos, tool.itemUseRadius, contactFilter2D, colliders);
+            if (colliders.Length > 0)
+            {
+                for (int i = 0; i < colliders.Length; i++)
+                {
+                    if (colliders[i] != null)
+                    {
+                        if (colliders[i].GetComponent<ReapItem>())
+                        {
+                            var item = colliders[i].GetComponent<ReapItem>();
+                            itemsInRadius.Add(item);
+                        }
+                    }
+                }
+            }
+
+            return itemsInRadius.Count > 0;
         }
 
         /// <summary>
@@ -295,7 +347,7 @@ namespace Farm.Map
 
             foreach (var crop in FindObjectsByType<Crop>(FindObjectsSortMode.None))
             {
-                Debug.Log(crop.gameObject.name);
+                // Debug.Log(crop.gameObject.name);
                 Destroy(crop.gameObject);
             }
 
@@ -326,6 +378,35 @@ namespace Farm.Map
                 }
             }
         }
+
+        /// <summary>
+        /// 根据场景名字构建网格范围，输出范围和原点
+        /// </summary>
+        /// <param name="sceneName">场景名称</param>
+        /// <param name="gridDimensions">网格范围</param>
+        /// <param name="gridOrigin">网格原点</param>
+        /// <returns></returns>
+        public bool GetGridDimensions(string sceneName, out Vector2Int gridDimensions, out Vector2Int gridOrigin)
+        {
+            gridDimensions = Vector2Int.zero;
+            gridOrigin = Vector2Int.zero;
+
+            foreach (var mapData in mapDataList)
+            {
+                if (mapData.sceneName == sceneName)
+                {
+                    gridDimensions.x = mapData.gridWidth;
+                    gridDimensions.y = mapData.gridHeight;
+
+                    gridOrigin.x = mapData.originX;
+                    gridOrigin.y = mapData.originY;
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }
 

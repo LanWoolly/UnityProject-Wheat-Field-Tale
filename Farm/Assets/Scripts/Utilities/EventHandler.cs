@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Farm.Dialogue;
+using Farm.Inventory;
 
 public static class EventHandler
 {
@@ -32,10 +34,10 @@ public static class EventHandler
         ItemSelectedEvent?.Invoke(itemDetails, isSelected);
     }
 
-    public static event Action<int, int> GameMinuteEvent;
-    public static void CallGameMinuteEvent(int minute, int hour)
+    public static event Action<int, int, int, Season> GameMinuteEvent;
+    public static void CallGameMinuteEvent(int minute, int hour, int day, Season season)
     {
-        GameMinuteEvent?.Invoke(minute, hour);
+        GameMinuteEvent?.Invoke(minute, hour, day, season);
     }
 
     public static event Action<int, Season> GameDayEvent;
@@ -114,5 +116,44 @@ public static class EventHandler
     public static void CallGenerateCropEvent()
     {
         GenerateCropEvent?.Invoke();
+    }
+
+    public static event Action<DialoguePiece> ShowDialogueEvent;
+    public static void CallShowDialogueEvent(DialoguePiece piece)
+    {
+        ShowDialogueEvent?.Invoke(piece);
+    }
+
+    //商店开启
+    public static event Action<SlotType, InventoryBag_SO> BaseBagOpenEvent;
+    public static void CallBaseBagOpenEvent(SlotType slotType, InventoryBag_SO bag_SO)
+    {
+        BaseBagOpenEvent?.Invoke(slotType, bag_SO);
+    }
+
+    //商店关闭
+    public static event Action<SlotType, InventoryBag_SO> BaseBagCloseEvent;
+    public static void CallBaseBagCloseEvent(SlotType slotType, InventoryBag_SO bag_SO)
+    {
+        BaseBagCloseEvent?.Invoke(slotType, bag_SO);
+    }
+
+    public static event Action<GameState> UpdateGameStateEvent;
+    public static void CallUpdateGameStateEvent(GameState gameState)
+    {
+        UpdateGameStateEvent?.Invoke(gameState);
+    }
+
+    public static event Action<ItemDetails, bool> ShowTradUI;
+    public static void CallShowTradUI(ItemDetails item, bool isSell)
+    {
+        ShowTradUI?.Invoke(item, isSell);
+    }
+
+    //建造
+    public static event Action<int, Vector3> BuildFurnitureEvent;
+    public static void CallBuildFurnitureEvent(int ID, Vector3 pos)
+    {
+        BuildFurnitureEvent?.Invoke(ID, pos);
     }
 }

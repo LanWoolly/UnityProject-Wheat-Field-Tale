@@ -9,13 +9,23 @@ namespace Farm.Inventory
     {
         [Header("物品数据")]
         public ItemDataList_SO itemDataList_SO;
+        [Header("建造蓝图")]
+        public BuiPrintDataList_SO bluePrintData;
         [Header("背包数据")]
         public InventoryBag_SO playerBag_SO;
+        private InventoryBag_SO currentBoxBag;
+        [Header("交易")]
+        public int playerMoney;
+
+        private Dictionary<string, List<InventoryItem>> boxDataDict = new Dictionary<string, List<InventoryItem>>();
+        public int boxDataAmount => boxDataDict.Count;
 
         private void OnEnable()
         {
             EventHandler.DropItemEvent += OnDropItemEvent;
             EventHandler.HarvestAtPlayerPosition += OnHarvestAtPlayerPosition;
+            EventHandler.BuildFurnitureEvent += OnBuildFurnitureEvent;
+            EventHandler.BaseBagOpenEvent += OnBaseBagOpenEvent;
         }
 
         private void Start()
@@ -26,7 +36,24 @@ namespace Farm.Inventory
         private void OnDisable()
         {
             EventHandler.DropItemEvent -= OnDropItemEvent;
-            EventHandler.HarvestAtPlayerPosition += OnHarvestAtPlayerPosition;
+            EventHandler.HarvestAtPlayerPosition -= OnHarvestAtPlayerPosition;
+            EventHandler.BuildFurnitureEvent -= OnBuildFurnitureEvent;
+            EventHandler.BaseBagOpenEvent -= OnBaseBagOpenEvent;
+        }
+
+        private void OnBaseBagOpenEvent(SlotType slotType, InventoryBag_SO boxBag_SO)
+        {
+            currentBoxBag = boxBag_SO;
+        }
+
+        private void OnBuildFurnitureEvent(int ID, Vector3 mousePos)
+        {
+            RemoveItem(ID, 1);
+            BluePrintDetails bluePrint = bluePrintData.GetBluePrintDetalis(ID);
+            foreach (var item in bluePrint.resourceItem)
+            {
+                RemoveItem(item.itemID, item.itemAmount);
+            }
         }
 
         private void OnDropItemEvent(int ID, Vector3 pos, ItemType itemType)
@@ -172,6 +199,58 @@ namespace Farm.Inventory
         }
 
         /// <summary>
+        /// 跨背包交换数据
+        /// </summary>
+        /// <param name="locationFrom"></param>
+        /// <param name="fromIndex"></param>
+        /// <param name="locationTarget"></param>
+        /// <param name="targetIndex"></param>
+        public void SwapItem(InventoryLocation locationFrom, int fromIndex, InventoryLocation locationTarget, int targetIndex)
+        {
+            var currentList = GetItemList(locationFrom);
+            var targetList = GetItemList(locationTarget);
+
+            InventoryItem currentItem = currentList[fromIndex];
+            if (targetIndex < targetList.Count)
+            {
+                InventoryItem targetItem = targetList[targetIndex];
+                if (targetItem.itemID != 0 && currentItem.itemID != targetItem.itemID) //有不相同的两个物品
+                {
+                    currentList[fromIndex] = targetItem;
+                    targetList[targetIndex] = currentItem;
+                }
+                else if (currentItem.itemID == targetItem.itemID) //相同的两个物品
+                {
+                    targetItem.itemAmount += currentItem.itemAmount;
+                    targetList[targetIndex] = targetItem;
+                    currentList[fromIndex] = new InventoryItem();
+                }
+                else //目标是空格子
+                {
+                    targetList[targetIndex] = currentItem;
+                    currentList[fromIndex] = new InventoryItem();
+                }
+                EventHandler.CallUpdateInventoryUI(locationFrom, currentList);
+                EventHandler.CallUpdateInventoryUI(locationTarget, targetList);
+            }
+        }
+
+        /// <summary>
+        /// 根据位置返回背包数据列表
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        private List<InventoryItem> GetItemList(InventoryLocation location)
+        {
+            return location switch
+            {
+                InventoryLocation.Player => playerBag_SO.itemList,
+                InventoryLocation.Box => currentBoxBag.itemList,
+                _ => null,
+            };
+        }
+
+        /// <summary>
         /// 移除指定数量的背包物品
         /// </summary>
         /// <param name="ID">物品ID</param>
@@ -193,6 +272,82 @@ namespace Farm.Inventory
             }
 
             EventHandler.CallUpdateInventoryUI(InventoryLocation.Player, playerBag_SO.itemList);
+        }
+
+        /// <summary>
+        /// 交易物品
+        /// </summary>
+        /// <param name="itemDetails">物品信息</param>
+        /// <param name="amount">交易数量</param>
+        /// <param name="isSellTrade">买或卖</param>
+        public void TradeItem(ItemDetails itemDetails, int amount, bool isSellTrade)
+        {
+            int cost = itemDetails.itemPrice * amount;
+            //获得物品背包位置
+            int index = GetItemIndexInBag(itemDetails.itemID);
+            if (isSellTrade) //卖
+            {
+                if (playerBag_SO.itemList[index].itemAmount >= amount)
+                {
+                    RemoveItem(itemDetails.itemID, amount);
+                    //卖出总价
+                    cost = (int)(cost * itemDetails.sellPercentage);
+                    playerMoney += cost;
+                }
+            }
+            else if (playerMoney - cost >= 0) //买
+            {
+                if (CheckBagCapacity())
+                {
+                    AddItemAtIndex(itemDetails.itemID, index, amount);
+                }
+                playerMoney -= cost;
+            }
+            //刷新UI
+            EventHandler.CallUpdateInventoryUI(InventoryLocation.Player, playerBag_SO.itemList);
+        }
+
+        /// <summary>
+        /// 检查建造资源物品库存
+        /// </summary>
+        /// <param name="ID">图纸ID</param>
+        /// <returns></returns>
+        public bool CheckStock(int ID)
+        {
+            var bluePrintDetails = bluePrintData.GetBluePrintDetalis(ID);
+            foreach (var resourceItem in bluePrintDetails.resourceItem)
+            {
+                var itemStock = playerBag_SO.GetInventoryItem(resourceItem.itemID);
+                if (itemStock.itemAmount >= resourceItem.itemAmount)
+                {
+                    continue;
+                }
+                else return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 查找箱子数据
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public List<InventoryItem> GetBoxDataList(string key)
+        {
+            if (boxDataDict.ContainsKey(key))
+                return boxDataDict[key];
+            return null;
+        }
+
+        /// <summary>
+        /// 加入箱子数据字典
+        /// </summary>
+        /// <param name="box"></param>
+        public void AddBoxDataDict(Box box)
+        {
+            var key = box.name + box.index;
+            if (!boxDataDict.ContainsKey(key))
+                boxDataDict.Add(key, box.boxBagData.itemList);
         }
     }
 }

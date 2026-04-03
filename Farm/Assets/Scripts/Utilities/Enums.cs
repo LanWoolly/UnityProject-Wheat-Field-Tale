@@ -12,12 +12,12 @@ public enum SlotType
 
 public enum InventoryLocation
 {
-    Player, Boxd
+    Player, Box,
 }
 
 public enum PartType
 {
-    None, Carry, Hoe, Break, Water, Chop, Collect
+    None, Carry, Hoe, Break, Water, Chop, Collect, Reap
 }
 
 public enum PartName
@@ -38,4 +38,9 @@ public enum GirdType
 public enum ParticleEffectType
 {
     None, LeavesFalling01, LeavesFalling02, Rock, ReapableScenery
+}
+
+public enum GameState
+{
+    GamePlay, Pause
 }

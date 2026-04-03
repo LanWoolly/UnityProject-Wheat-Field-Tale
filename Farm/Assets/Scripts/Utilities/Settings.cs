@@ -17,4 +17,13 @@ public class Settings
 
     //场景过渡
     public const float fadeDuration = 1.5f;
+
+    //割草数量限制
+    public const int reapAmount = 2;
+
+    public const float gridCellSize = 1;
+    public const float gridCellDiagonalSize = 1.41f;
+    public const float pixelSize = 0.05f; //20*20占1unit
+    public const float animationBreakTime = 5f; //动画间隔时间
+    public const int maxGridSize = 999;
 }

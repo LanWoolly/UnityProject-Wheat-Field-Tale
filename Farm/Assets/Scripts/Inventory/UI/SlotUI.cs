@@ -22,6 +22,18 @@ namespace Farm.Inventory
         //物品信息
         public ItemDetails itemDetails;
         public int itemAmount;
+        public InventoryLocation location
+        {
+            get
+            {
+                return slotType switch
+                {
+                    SlotType.Bag => InventoryLocation.Player,
+                    SlotType.Box => InventoryLocation.Box,
+                    _ => InventoryLocation.Player,
+                };
+            }
+        }
 
         public InventoryUI inventoryUI => GetComponentInParent<InventoryUI>();
 
@@ -120,6 +132,20 @@ namespace Farm.Inventory
                 if (slotType == SlotType.Bag && targetSlot.slotType == SlotType.Bag)
                 {
                     InventoryManager.Instance.SwapItem(slotIndex, targetIndex);
+                }
+                else if (slotType == SlotType.Shop && targetSlot.slotType == SlotType.Bag) //买
+                {
+                    EventHandler.CallShowTradUI(itemDetails, false);
+                }
+
+                else if (slotType == SlotType.Bag && targetSlot.slotType == SlotType.Shop) //卖
+                {
+                    EventHandler.CallShowTradUI(itemDetails, true);
+                }
+                else if (slotType != SlotType.Shop && targetSlot.slotType != SlotType.Shop && slotType != targetSlot.slotType)
+                {
+                    //跨背包数据交换物品
+                    InventoryManager.Instance.SwapItem(location, slotIndex, targetSlot.location, targetSlot.slotIndex);
                 }
 
                 inventoryUI.UpdateSlotHightlight(-1);

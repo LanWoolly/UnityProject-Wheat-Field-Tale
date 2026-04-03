@@ -27,6 +27,16 @@ namespace Farm.Inventory
                 inventoryUI.itemToolTip.SetupTooltip(slotUI.itemDetails, slotUI.slotType);
                 inventoryUI.itemToolTip.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0);
                 inventoryUI.itemToolTip.transform.position = transform.position + Vector3.up * 60;
+
+                if (slotUI.itemDetails.itemType == ItemType.Furniture)
+                {
+                    inventoryUI.itemToolTip.resourcePanel.SetActive(true);
+                    inventoryUI.itemToolTip.SetUpResourcePanel(slotUI.itemDetails.itemID);
+                }
+                else
+                {
+                    inventoryUI.itemToolTip.resourcePanel.SetActive(false);
+                }
             }
             else
             {

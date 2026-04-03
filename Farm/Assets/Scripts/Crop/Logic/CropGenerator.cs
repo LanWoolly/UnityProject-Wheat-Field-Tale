@@ -26,7 +26,7 @@ namespace Farm.CropPlant
         private void GenerateCrop()
         {
             Vector3Int cropGridPos = currentGrid.WorldToCell(transform.position);
-            Debug.Log(cropGridPos);
+
 
             if (seedItemID != 0)
             {
@@ -35,9 +35,9 @@ namespace Farm.CropPlant
                 if (tile == null)
                 {
                     tile = new TileDetails();
+                    tile.girdX = cropGridPos.x;
+                    tile.gridY = cropGridPos.y;
                 }
-                tile.girdX = cropGridPos.x;
-                tile.gridY = cropGridPos.y;
                 tile.daysSinceWatered = -1;
                 tile.seedItemID = seedItemID;
                 tile.growthDays = growthDays;
