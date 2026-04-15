@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/UI.unity
     guid: 810c7116010608c40878a5e6cb4160fa
   - enabled: 1
+    path: Assets/Scenes/00Start.unity
+    guid: f2cfd23d20b251445b8fdfd4eac5bc6a
+  - enabled: 1
     path: Assets/Scenes/01Field.unity
     guid: 5de432a67aa37504e84e117638b4c051
   - enabled: 1
@@ -20,5 +23,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/03Stall.unity
     guid: aa4d210b29cb3404a93855de28ccab6d
+  - enabled: 1
+    path: Assets/Scenes/04Forest.unity
+    guid: a8f6105c526431043892228c6085cbf7
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

@@ -1,17 +1,19 @@
 using System;
+using UnityEngine;
+using Farm.Save;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Farm.Inventory
 {
-    public class InventoryManager : Singleton<InventoryManager>
+    public class InventoryManager : Singleton<InventoryManager>, ISaveable
     {
         [Header("物品数据")]
         public ItemDataList_SO itemDataList_SO;
         [Header("建造蓝图")]
         public BuiPrintDataList_SO bluePrintData;
         [Header("背包数据")]
+        public InventoryBag_SO playerBagTemp;
         public InventoryBag_SO playerBag_SO;
         private InventoryBag_SO currentBoxBag;
         [Header("交易")]
@@ -20,17 +22,22 @@ namespace Farm.Inventory
         private Dictionary<string, List<InventoryItem>> boxDataDict = new Dictionary<string, List<InventoryItem>>();
         public int boxDataAmount => boxDataDict.Count;
 
+        public string GUID => GetComponent<DataGUID>().guid;
+
         private void OnEnable()
         {
             EventHandler.DropItemEvent += OnDropItemEvent;
             EventHandler.HarvestAtPlayerPosition += OnHarvestAtPlayerPosition;
             EventHandler.BuildFurnitureEvent += OnBuildFurnitureEvent;
             EventHandler.BaseBagOpenEvent += OnBaseBagOpenEvent;
+            EventHandler.StartNewGameEvent += OnStartNewGameEvent;
         }
 
         private void Start()
         {
-            EventHandler.CallUpdateInventoryUI(InventoryLocation.Player, playerBag_SO.itemList);
+            // EventHandler.CallUpdateInventoryUI(InventoryLocation.Player, playerBag_SO.itemList);
+            ISaveable saveable = this;
+            saveable.RegisterSaveable();
         }
 
         private void OnDisable()
@@ -39,6 +46,15 @@ namespace Farm.Inventory
             EventHandler.HarvestAtPlayerPosition -= OnHarvestAtPlayerPosition;
             EventHandler.BuildFurnitureEvent -= OnBuildFurnitureEvent;
             EventHandler.BaseBagOpenEvent -= OnBaseBagOpenEvent;
+            EventHandler.StartNewGameEvent -= OnStartNewGameEvent;
+        }
+
+        private void OnStartNewGameEvent(int obj)
+        {
+            playerBag_SO = Instantiate(playerBagTemp);
+            playerMoney = Settings.playerStartMoney;
+            boxDataDict.Clear();
+            EventHandler.CallUpdateInventoryUI(InventoryLocation.Player, playerBag_SO.itemList);
         }
 
         private void OnBaseBagOpenEvent(SlotType slotType, InventoryBag_SO boxBag_SO)
@@ -255,7 +271,7 @@ namespace Farm.Inventory
         /// </summary>
         /// <param name="ID">物品ID</param>
         /// <param name="removeAmount">数量</param>
-        private void RemoveItem(int ID, int removeAmount)
+        public void RemoveItem(int ID, int removeAmount)
         {
             var index = GetItemIndexInBag(ID);
 
@@ -348,6 +364,38 @@ namespace Farm.Inventory
             var key = box.name + box.index;
             if (!boxDataDict.ContainsKey(key))
                 boxDataDict.Add(key, box.boxBagData.itemList);
+        }
+
+        public GameSaveData GenerateSaveData()
+        {
+            GameSaveData saveData = new GameSaveData();
+            saveData.playerMoney = this.playerMoney;
+
+            saveData.inventoryDict = new Dictionary<string, List<InventoryItem>>();
+            saveData.inventoryDict.Add(playerBag_SO.name, playerBag_SO.itemList);
+
+            foreach (var item in boxDataDict)
+            {
+                saveData.inventoryDict.Add(item.Key, item.Value);
+            }
+            return saveData;
+        }
+
+        public void RestoreData(GameSaveData saveData)
+        {
+            this.playerMoney = saveData.playerMoney;
+            playerBag_SO = Instantiate(playerBagTemp);
+            playerBag_SO.itemList = saveData.inventoryDict[playerBag_SO.name];
+
+            foreach (var item in saveData.inventoryDict)
+            {
+                if (boxDataDict.ContainsKey(item.Key))
+                {
+                    boxDataDict[item.Key] = item.Value;
+                }
+            }
+
+            EventHandler.CallUpdateInventoryUI(InventoryLocation.Player, playerBag_SO.itemList);
         }
     }
 }

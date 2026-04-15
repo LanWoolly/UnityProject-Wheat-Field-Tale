@@ -1,16 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using UnityEngine.SceneManagement;
 using System;
-using Farm.CropPlant;
+using Farm.Save;
 using UnityEditor;
+using UnityEngine;
 using Farm.Inventory;
+using System.Collections;
+using UnityEngine.Tilemaps;
+using Farm.CropPlant;
+using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 namespace Farm.Map
 {
-    public class GirdMapManager : Singleton<GirdMapManager>
+    public class GirdMapManager : Singleton<GirdMapManager>, ISaveable
     {
         [Header("种植瓦片切换信息")]
         public RuleTile digTile;
@@ -31,6 +32,7 @@ namespace Farm.Map
 
         private Grid currentGrid;
 
+        public string GUID => GetComponent<DataGUID>().guid;
 
         private void OnEnable()
         {
@@ -47,6 +49,9 @@ namespace Farm.Map
                 firstLoadDict.Add(mapData.sceneName, true);
                 InitTileDetailsDict(mapData);
             }
+
+            ISaveable saveable = this;
+            saveable.RegisterSaveable();
         }
 
         private void OnDisable()
@@ -198,6 +203,7 @@ namespace Farm.Map
                     case ItemType.Seed:
                         EventHandler.CallPlantSeedEvent(itemDetails.itemID, currentTile);
                         EventHandler.CallDropItemEvent(itemDetails.itemID, mouseWorldPos, itemDetails.itemType);
+                        EventHandler.CallPlaySoundEvent(SoundName.Plant);
                         break;
                     case ItemType.Commodity:
                         EventHandler.CallDropItemEvent(itemDetails.itemID, mouseWorldPos, itemDetails.itemType);
@@ -207,12 +213,14 @@ namespace Farm.Map
                         currentTile.daysSinceDig = 0;
                         currentTile.canDig = false;
                         currentTile.canDropItem = false;
-                        //TODO:音效
+                        //音效
+                        EventHandler.CallPlaySoundEvent(SoundName.Hoe);
                         break;
                     case ItemType.WaterTool:
                         SetWaterGround(currentTile);
                         currentTile.daysSinceWatered = 0;
                         //音效
+                        EventHandler.CallPlaySoundEvent(SoundName.Water);
                         break;
                     case ItemType.BreakTool:
                     case ItemType.ChopTool:
@@ -235,6 +243,7 @@ namespace Farm.Map
                             if (reapCount >= Settings.reapAmount)
                                 break;
                         }
+                        EventHandler.CallPlaySoundEvent(SoundName.Reap);
                         break;
                     case ItemType.Furniture:
                         //在地图上生成物品（ItemManager）
@@ -407,6 +416,19 @@ namespace Farm.Map
             return false;
         }
 
+        public GameSaveData GenerateSaveData()
+        {
+            GameSaveData saveData = new GameSaveData();
+            saveData.tileDetailsDict = this.tileDetailsDict;
+            saveData.firstLoadDict = this.firstLoadDict;
+            return saveData;
+        }
+
+        public void RestoreData(GameSaveData saveData)
+        {
+            this.tileDetailsDict = saveData.tileDetailsDict;
+            this.firstLoadDict = saveData.firstLoadDict;
+        }
     }
 }
 

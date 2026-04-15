@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb713a0ef9ab96c44b05511aac7edbde, type: 3}
+  m_Name: ExploreDenseForest_SO
+  m_EditorClassIdentifier: 
+  entranceDetailList:
+  - sceneName: 04Forest
+    requiredItemList:
+    - itemID: 1016
+      itemAmount: 10
+    isActivated: 0

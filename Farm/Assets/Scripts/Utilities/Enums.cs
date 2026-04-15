@@ -44,3 +44,18 @@ public enum GameState
 {
     GamePlay, Pause
 }
+
+public enum LightShift
+{
+    Morning, Night
+}
+
+public enum SoundName
+{
+    None, FootStepSoft, FootStepHard,
+    Axe, Pickaxe, Hoe, Reap, Water, Basket, Chop,
+    Pickup, Plant, TreeFalling, Rustle,
+    AmbientCountryside1, AmbientCountryside2,
+    MusicCalm1, MusicCalm2, MusicCalm3,
+    AmbientIndoor1
+}

@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Settings
@@ -26,4 +25,12 @@ public class Settings
     public const float pixelSize = 0.05f; //20*20占1unit
     public const float animationBreakTime = 5f; //动画间隔时间
     public const int maxGridSize = 999;
+
+    //灯光
+    public const float lightChangeDuration = 25f;
+    public static TimeSpan morningTime = new TimeSpan(5, 0, 0);
+    public static TimeSpan nightTime = new TimeSpan(19, 0, 0);
+
+    public static Vector3 playerStartPos = new Vector3(0, -7f, 0);
+    public const int playerStartMoney = 100;
 }

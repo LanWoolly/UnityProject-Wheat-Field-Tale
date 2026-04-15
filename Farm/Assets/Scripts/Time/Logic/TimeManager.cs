@@ -1,9 +1,10 @@
 using System;
+using Farm.Save;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class TimeManager : Singleton<TimeManager>
+public class TimeManager : Singleton<TimeManager>, ISaveable
 {
     private int gameSecond, gameMinute, gameHour, gameDay, gameMonth, gameYear;
     private Season gameSeason = Season.春天;
@@ -12,25 +13,34 @@ public class TimeManager : Singleton<TimeManager>
     public bool gameClockPause;
     private float tikTime;
 
+    //灯光时间差
+    private float timeDifference;
+
     public TimeSpan GameTime => new TimeSpan(gameHour, gameMinute, gameSecond);
 
-    protected override void Awake()
-    {
-        base.Awake();
-        NewGameTime();
-    }
+    public string GUID => GetComponent<DataGUID>().guid;
+
 
     private void OnEnable()
     {
         EventHandler.BeforeSceneUnloadEvent += OnBeforeSceneUnloadEvent;
         EventHandler.AfterSceneLoadedEvent += OnAfterSceneLoadedEvent;
+        EventHandler.UpdateGameStateEvent += OnUpdateGameStateEvent;
+        EventHandler.StartNewGameEvent += OnStartNewGameEvent;
+        EventHandler.EndGameEvent += OnEndGameEvent;
     }
 
     //在OnEnabld之后执行
     private void Start()
     {
-        EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear, gameSeason);
-        EventHandler.CallGameMinuteEvent(gameMinute, gameHour, gameDay, gameSeason);
+        // EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear, gameSeason);
+        // EventHandler.CallGameMinuteEvent(gameMinute, gameHour, gameDay, gameSeason);
+        // //切换灯光
+        // EventHandler.CallLightShiftChangeEvent(gameSeason, GetCurrentLightShift(), timeDifference);
+        gameClockPause = true;
+
+        ISaveable saveable = this;
+        saveable.RegisterSaveable();
     }
 
     private void Update()
@@ -63,8 +73,27 @@ public class TimeManager : Singleton<TimeManager>
 
     private void OnDisable()
     {
-        EventHandler.BeforeSceneUnloadEvent += OnBeforeSceneUnloadEvent;
-        EventHandler.AfterSceneLoadedEvent += OnAfterSceneLoadedEvent;
+        EventHandler.BeforeSceneUnloadEvent -= OnBeforeSceneUnloadEvent;
+        EventHandler.AfterSceneLoadedEvent -= OnAfterSceneLoadedEvent;
+        EventHandler.UpdateGameStateEvent -= OnUpdateGameStateEvent;
+        EventHandler.StartNewGameEvent -= OnStartNewGameEvent;
+        EventHandler.EndGameEvent -= OnEndGameEvent;
+    }
+
+    private void OnStartNewGameEvent(int obj)
+    {
+        NewGameTime();
+        gameClockPause = false;
+    }
+
+    private void OnEndGameEvent()
+    {
+        gameClockPause = true;
+    }
+
+    private void OnUpdateGameStateEvent(GameState gameState)
+    {
+        gameClockPause = gameState == GameState.Pause;
     }
 
     private void OnBeforeSceneUnloadEvent()
@@ -75,6 +104,10 @@ public class TimeManager : Singleton<TimeManager>
     private void OnAfterSceneLoadedEvent()
     {
         gameClockPause = false;
+        EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear, gameSeason);
+        EventHandler.CallGameMinuteEvent(gameMinute, gameHour, gameDay, gameSeason);
+        //切换灯光
+        EventHandler.CallLightShiftChangeEvent(gameSeason, GetCurrentLightShift(), timeDifference);
     }
 
     //初始化游戏时间
@@ -144,9 +177,57 @@ public class TimeManager : Singleton<TimeManager>
                 EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear, gameSeason);
             }
             EventHandler.CallGameMinuteEvent(gameMinute, gameHour, gameDay, gameSeason);
+            //切换灯光
+            EventHandler.CallLightShiftChangeEvent(gameSeason, GetCurrentLightShift(), timeDifference);
         }
 
         // Debug.Log("Second:" + gameSecond + "Minute:" + gameMinute);
     }
 
+    /// <summary>
+    /// 返回LightShift同时计算时间差
+    /// </summary>
+    /// <returns></returns>
+    private LightShift GetCurrentLightShift()
+    {
+        if (GameTime >= Settings.morningTime && GameTime < Settings.nightTime)
+        {
+            timeDifference = (float)(GameTime - Settings.morningTime).TotalMinutes;
+            return LightShift.Morning;
+        }
+
+        if (GameTime < Settings.morningTime || GameTime >= Settings.nightTime)
+        {
+            timeDifference = Mathf.Abs((float)(GameTime - Settings.nightTime).TotalMinutes);
+            return LightShift.Night;
+        }
+
+        return LightShift.Morning;
+    }
+
+    public GameSaveData GenerateSaveData()
+    {
+        GameSaveData saveData = new GameSaveData();
+        saveData.timeDict = new Dictionary<string, int>();
+        saveData.timeDict.Add("gameYear", gameYear);
+        saveData.timeDict.Add("gameSeason", (int)gameSeason);
+        saveData.timeDict.Add("gameMonth", gameMonth);
+        saveData.timeDict.Add("gameDay", gameDay);
+        saveData.timeDict.Add("gameHour", gameHour);
+        saveData.timeDict.Add("gameMinute", gameMinute);
+        saveData.timeDict.Add("gameSecond", gameSecond);
+
+        return saveData;
+    }
+
+    public void RestoreData(GameSaveData saveData)
+    {
+        gameYear = saveData.timeDict["gameYear"];
+        gameSeason = (Season)saveData.timeDict["gameSeason"];
+        gameMonth = saveData.timeDict["gameMonth"];
+        gameDay = saveData.timeDict["gameDay"];
+        gameHour = saveData.timeDict["gameHour"];
+        gameMinute = saveData.timeDict["gameMinute"];
+        gameSecond = saveData.timeDict["gameSecond"];
+    }
 }

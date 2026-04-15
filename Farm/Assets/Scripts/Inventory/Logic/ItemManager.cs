@@ -1,20 +1,21 @@
 using System;
+using Farm.Save;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
-using Unity.Mathematics;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Farm.Inventory
 {
-    public class ItemManager : MonoBehaviour
+    public class ItemManager : MonoBehaviour, ISaveable
     {
         public Item itemPrefab;
         public Item bounceItemPrefab;
         private Transform itemParent;
 
         private Transform PlayerTransform => FindFirstObjectByType<Player>().transform;
+
+        public string GUID => GetComponent<DataGUID>().guid;
 
         //记录场景Item
         private Dictionary<string, List<SceneItem>> sceneItemDict = new Dictionary<string, List<SceneItem>>();
@@ -29,8 +30,14 @@ namespace Farm.Inventory
             EventHandler.AfterSceneLoadedEvent += OnAfterSceneLoadedEvent;
             //建造
             EventHandler.BuildFurnitureEvent += OnBuildFurnitureEvent;
+            EventHandler.StartNewGameEvent += OnStartNewGameEvent;
         }
 
+        private void Start()
+        {
+            ISaveable saveable = this;
+            saveable.RegisterSaveable();
+        }
         private void OnDisable()
         {
             EventHandler.InstantiateItemInScene -= OnInstantiateItemInScene;
@@ -39,6 +46,14 @@ namespace Farm.Inventory
             EventHandler.AfterSceneLoadedEvent -= OnAfterSceneLoadedEvent;
             //建造
             EventHandler.BuildFurnitureEvent -= OnBuildFurnitureEvent;
+            EventHandler.StartNewGameEvent -= OnStartNewGameEvent;
+
+        }
+
+        private void OnStartNewGameEvent(int obj)
+        {
+            sceneItemDict.Clear();
+            sceneFurnitureDict.Clear();
         }
 
         private void OnBuildFurnitureEvent(int ID, Vector3 pos)
@@ -72,7 +87,7 @@ namespace Farm.Inventory
         /// <param name="pos">世界坐标</param>
         private void OnInstantiateItemInScene(int ID, Vector3 pos)
         {
-            var item = Instantiate(bounceItemPrefab, pos, quaternion.identity, itemParent);
+            var item = Instantiate(bounceItemPrefab, pos, Quaternion.identity, itemParent);
             item.itemID = ID;
             item.GetComponent<ItemBounce>().InitBounceItem(pos, Vector3.up);
         }
@@ -81,7 +96,7 @@ namespace Farm.Inventory
         private void OnDropItemEvent(int ID, Vector3 mousePos, ItemType itemType)
         {
             if (itemType == ItemType.Seed) return;
-            var item = Instantiate(bounceItemPrefab, PlayerTransform.position, quaternion.identity, itemParent);
+            var item = Instantiate(bounceItemPrefab, PlayerTransform.position, Quaternion.identity, itemParent);
             item.itemID = ID;
             var dir = (mousePos - PlayerTransform.position).normalized;
             item.GetComponent<ItemBounce>().InitBounceItem(mousePos, dir);
@@ -195,6 +210,27 @@ namespace Farm.Inventory
                     }
                 }
             }
+        }
+
+        public GameSaveData GenerateSaveData()
+        {
+            GetAllSceneItems();
+            GetAllSceneFurniture();
+
+            GameSaveData saveData = new GameSaveData();
+            saveData.sceneItemDict = this.sceneItemDict;
+            saveData.sceneFurnitureDict = this.sceneFurnitureDict;
+
+            return saveData;
+        }
+
+        public void RestoreData(GameSaveData saveData)
+        {
+            this.sceneItemDict = saveData.sceneItemDict;
+            this.sceneFurnitureDict = saveData.sceneFurnitureDict;
+
+            RecreateAllItems();
+            RebuildFurniture();
         }
     }
 }

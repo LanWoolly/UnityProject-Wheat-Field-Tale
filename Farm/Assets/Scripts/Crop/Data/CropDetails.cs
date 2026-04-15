@@ -48,9 +48,10 @@ public class CropDetails
     public bool generateAtPlayerPosition;
     public bool hasAnimation;
     public bool hasParticalEffect;
-    //TODO:特效 音效等
+
     public ParticleEffectType effectType;
     public Vector3 effectPos;
+    public SoundName soundEffect;
 
     /// <summary>
     /// 检查当前工具是否可用

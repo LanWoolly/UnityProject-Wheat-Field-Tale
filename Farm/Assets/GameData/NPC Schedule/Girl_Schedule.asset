@@ -18,7 +18,7 @@ MonoBehaviour:
     day: 0
     priority: 0
     season: 0
-    targetScene: 01Field
+    targetScene: 03Stall
     targetGridPosition: {x: -5, y: -11}
     clipAtStop: {fileID: 7400000, guid: 500fefed8113b4f7e8f2dc728631a63d, type: 2}
     interactable: 1

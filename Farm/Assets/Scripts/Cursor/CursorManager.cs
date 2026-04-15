@@ -240,7 +240,10 @@ public class CursorManager : MonoBehaviour
                         SetCursorInValid();
                     break;
                 case ItemType.Furniture:
-                    if (currentTile.canPlaceFurniture && InventoryManager.Instance.CheckStock(currentItem.itemID))
+                    buildImage.gameObject.SetActive(true);
+                    var bluePrintDetails = InventoryManager.Instance.bluePrintData.GetBluePrintDetalis(currentItem.itemID);
+
+                    if (currentTile.canPlaceFurniture && InventoryManager.Instance.CheckStock(currentItem.itemID) && !HaveFurnitureInRadius(bluePrintDetails))
                     {
                         SetCursorValid();
                     }
@@ -251,9 +254,20 @@ public class CursorManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("2");
+            Debug.Log("没有瓦片信息");
             SetCursorInValid();
         }
+    }
+
+    private bool HaveFurnitureInRadius(BluePrintDetails bluePrintDetails)
+    {
+        var buildItem = bluePrintDetails.buildPrefab;
+        Vector2 point = mouseWorldPos;
+        var size = buildItem.GetComponent<BoxCollider2D>().size;
+        var otherColl = Physics2D.OverlapBox(point, size, 0);
+        if (otherColl != null)
+            return otherColl.GetComponent<Furniture>();
+        return false;
     }
 
     /// <summary>

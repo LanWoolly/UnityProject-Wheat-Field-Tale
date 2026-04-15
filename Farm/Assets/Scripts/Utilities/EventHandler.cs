@@ -156,4 +156,35 @@ public static class EventHandler
     {
         BuildFurnitureEvent?.Invoke(ID, pos);
     }
+
+    //灯光
+    public static event Action<Season, LightShift, float> LightShiftChangeEvent;
+    public static void CallLightShiftChangeEvent(Season season, LightShift lightShift, float timeDifference)
+    {
+        LightShiftChangeEvent?.Invoke(season, lightShift, timeDifference);
+    }
+
+    public static event Action<SoundDetails> InitSoundEffect;
+    public static void CallInitSoundEffect(SoundDetails soundDetails)
+    {
+        InitSoundEffect?.Invoke(soundDetails);
+    }
+
+    public static event Action<SoundName> PlaySoundEvent;
+    public static void CallPlaySoundEvent(SoundName soundName)
+    {
+        PlaySoundEvent?.Invoke(soundName);
+    }
+
+    public static event Action<int> StartNewGameEvent;
+    public static void CallStartNewGameEvent(int index)
+    {
+        StartNewGameEvent?.Invoke(index);
+    }
+
+    public static event Action EndGameEvent;
+    public static void CallEndGameEvent()
+    {
+        EndGameEvent?.Invoke();
+    }
 }

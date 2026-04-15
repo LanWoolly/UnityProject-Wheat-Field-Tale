@@ -27,7 +27,6 @@ public struct InventoryItem
 {
     public int itemID;
     public int itemAmount;
-
 }
 
 [System.Serializable]
