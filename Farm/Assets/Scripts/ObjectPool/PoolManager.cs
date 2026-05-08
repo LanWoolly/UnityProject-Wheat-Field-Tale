@@ -6,10 +6,10 @@ using UnityEditor.Tilemaps;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class PoolManager : MonoBehaviour
+public class PoolManager : Singleton<PoolManager>
 {
     public List<GameObject> poolPrefabs;
-    private List<ObjectPool<GameObject>> poolEffectList = new List<ObjectPool<GameObject>>();
+    public List<ObjectPool<GameObject>> poolEffectList = new List<ObjectPool<GameObject>>();
 
     private Queue<GameObject> soundQueue = new Queue<GameObject>();
     private void OnEnable()
@@ -59,6 +59,7 @@ public class PoolManager : MonoBehaviour
             ParticleEffectType.LeavesFalling02 => poolEffectList[1],
             ParticleEffectType.Rock => poolEffectList[2],
             ParticleEffectType.ReapableScenery => poolEffectList[3],
+            ParticleEffectType.Rain => poolEffectList[5],
             _ => null
         };
 

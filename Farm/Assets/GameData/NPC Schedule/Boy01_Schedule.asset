@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4a1d1de18ff8ad498e1d862fe91b04b, type: 3}
+  m_Name: Boy01_Schedule
+  m_EditorClassIdentifier: 
+  scheduleList:
+  - hour: 8
+    minute: 0
+    day: 0
+    priority: 0
+    season: 0
+    targetScene: 04Forest
+    targetGridPosition: {x: 0, y: 9}
+    clipAtStop: {fileID: 7400000, guid: 500fefed8113b4f7e8f2dc728631a63d, type: 2}
+    interactable: 1

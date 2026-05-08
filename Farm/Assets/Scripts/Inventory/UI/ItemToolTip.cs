@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 using Farm.Inventory;
 public class ItemToolTip : MonoBehaviour
@@ -13,9 +11,11 @@ public class ItemToolTip : MonoBehaviour
     [SerializeField] private GameObject bottomPart;
     [SerializeField] public GameObject resourcePanel;
     [SerializeField] private Image[] resourceItem;
+    private InventoryItem currentItem;
 
     public void SetupTooltip(ItemDetails itemDetails, SlotType slotType)
     {
+        currentItem = InventoryManager.Instance.playerBag_SO.GetInventoryItem(itemDetails.itemID);
         nameText.text = itemDetails.itemName;
         typeText.text = GetItemType(itemDetails.itemType);
         descriptionText.text = itemDetails.itemDescription;
@@ -27,7 +27,14 @@ public class ItemToolTip : MonoBehaviour
             var price = itemDetails.itemPrice;
             if (slotType == SlotType.Bag)
             {
-                price = (int)(price * itemDetails.sellPercentage);
+                if (currentItem.itemAmount <= 50)
+                {
+                    price = (int)(price * itemDetails.sellPercentage);
+                }
+                else
+                {
+                    price = (int)(price * (itemDetails.sellPercentage - 0.2f));
+                }
             }
 
             valueText.text = price.ToString();

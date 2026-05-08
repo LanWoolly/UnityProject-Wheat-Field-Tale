@@ -307,7 +307,12 @@ namespace Farm.Inventory
                 {
                     RemoveItem(itemDetails.itemID, amount);
                     //卖出总价
-                    cost = (int)(cost * itemDetails.sellPercentage);
+                    InventoryItem currentItem = playerBag_SO.GetInventoryItem(itemDetails.itemID);
+                    if (currentItem.itemAmount <= 50)
+                        cost = (int)(cost * itemDetails.sellPercentage);
+                    else
+                        cost = (int)(cost * (itemDetails.sellPercentage - 0.2f));
+
                     playerMoney += cost;
                 }
             }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -37,8 +38,8 @@ public class CropDetails
     [Space]
     [Header("收割果实信息")]
     public int[] producedItemID;
-    public int[] producedMinAmount;
-    public int[] producedMaxAmount;
+    public List<int> producedMinAmount;
+    public List<int> producedMaxAmount;
     public Vector2 spawnRadius;
 
     [Header("再次生长时间")]
@@ -52,6 +53,10 @@ public class CropDetails
     public ParticleEffectType effectType;
     public Vector3 effectPos;
     public SoundName soundEffect;
+
+    [Header("变异")]
+    [SceneName] public string MutationScene;
+    public int MutationItemID;
 
     /// <summary>
     /// 检查当前工具是否可用

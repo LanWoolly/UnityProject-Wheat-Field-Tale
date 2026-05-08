@@ -1,12 +1,14 @@
-using System.Collections;
-using TMPro;
+using System;
 using UnityEngine;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class Crop : MonoBehaviour
 {
     public CropDetails cropDetails;
     public TileDetails tileDetails;
     private int harvestActionCount;
+    private string currentScene;
     public bool CanHarvest => tileDetails.growthDays >= cropDetails.TotalGrowthDays;
 
     private Animator anim;
@@ -34,7 +36,6 @@ public class Crop : MonoBehaviour
                     anim.SetTrigger("RotateRight");
                 else
                     anim.SetTrigger("RotateLeft");
-                EventHandler.CallPlaySoundEvent(SoundName.TreeFalling);
             }
             //播放粒子特效
             if (cropDetails.hasParticalEffect)
@@ -59,6 +60,8 @@ public class Crop : MonoBehaviour
                     anim.SetTrigger("FallingRight");
                 else
                     anim.SetTrigger("FallingLeft");
+
+                EventHandler.CallPlaySoundEvent(SoundName.TreeFalling);
 
                 StartCoroutine(HarvestAfterAnimation());
             }
@@ -94,6 +97,21 @@ public class Crop : MonoBehaviour
     /// </summary>
     public void SpawnHarvestItems()
     {
+        currentScene = SceneManager.GetActiveScene().name;
+        if (cropDetails.MutationScene != "PersistentScene" || cropDetails.MutationItemID > 0)
+        {
+            if (currentScene == cropDetails.MutationScene)
+            {
+                int[] oldProduce = cropDetails.producedItemID;
+                int[] newProduce = new int[cropDetails.producedItemID.Length + 1];
+                Array.Copy(oldProduce, newProduce, oldProduce.Length);
+                newProduce[newProduce.Length - 1] = cropDetails.MutationItemID;
+                cropDetails.producedItemID = newProduce;
+
+                cropDetails.producedMinAmount.Add(1);
+                cropDetails.producedMaxAmount.Add(1);
+            }
+        }
         for (int i = 0; i < cropDetails.producedItemID.Length; i++)
         {
             int amountToProduce;
@@ -104,7 +122,7 @@ public class Crop : MonoBehaviour
             }
             else //物品随机数量
             {
-                amountToProduce = Random.Range(cropDetails.producedMinAmount[i], cropDetails.producedMaxAmount[i] + 1);
+                amountToProduce = UnityEngine.Random.Range(cropDetails.producedMinAmount[i], cropDetails.producedMaxAmount[i] + 1);
             }
 
             for (int j = 0; j < amountToProduce; j++)
@@ -118,8 +136,8 @@ public class Crop : MonoBehaviour
                     //判断应该生成的物品方向
                     var dirX = transform.position.x > PlayerTransform.position.x ? 1 : -1;
                     //一定范围的随机
-                    var spawnPos = new Vector3(transform.position.x + Random.Range(dirX, cropDetails.spawnRadius.x * dirX),
-                    transform.position.y + Random.Range(-cropDetails.spawnRadius.y, cropDetails.spawnRadius.y), 0);
+                    var spawnPos = new Vector3(transform.position.x + UnityEngine.Random.Range(dirX, cropDetails.spawnRadius.x * dirX),
+                    transform.position.y + UnityEngine.Random.Range(-cropDetails.spawnRadius.y, cropDetails.spawnRadius.y), 0);
                     EventHandler.CallInstantiateItemInScene(cropDetails.producedItemID[i], spawnPos);
                 }
             }

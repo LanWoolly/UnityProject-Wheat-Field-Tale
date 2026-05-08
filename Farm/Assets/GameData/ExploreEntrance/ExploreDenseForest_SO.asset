@@ -17,4 +17,4 @@ MonoBehaviour:
     requiredItemList:
     - itemID: 1016
       itemAmount: 10
-    isActivated: 0
+    isActivated: 1

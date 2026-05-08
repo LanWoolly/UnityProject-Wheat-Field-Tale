@@ -21,3 +21,11 @@ MonoBehaviour:
     lightShift: 1
     lightColor: {r: 0.14061935, g: 0.23073275, b: 0.5660378, a: 1}
     lightAmount: 0.4
+  - season: 1
+    lightShift: 0
+    lightColor: {r: 1, g: 1, b: 1, a: 1}
+    lightAmount: 1
+  - season: 1
+    lightShift: 1
+    lightColor: {r: 0.14061935, g: 0.23073275, b: 0.5660378, a: 1}
+    lightAmount: 0.4

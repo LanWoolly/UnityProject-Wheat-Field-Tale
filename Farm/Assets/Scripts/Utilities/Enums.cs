@@ -37,7 +37,7 @@ public enum GirdType
 
 public enum ParticleEffectType
 {
-    None, LeavesFalling01, LeavesFalling02, Rock, ReapableScenery
+    None, LeavesFalling01, LeavesFalling02, Rock, ReapableScenery, Rain,
 }
 
 public enum GameState
